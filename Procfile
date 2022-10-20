@@ -1,1 +1,1 @@
-web: python Beinscrap.py
+web: gunicorn app:app 
