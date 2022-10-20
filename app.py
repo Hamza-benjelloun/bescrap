@@ -15,8 +15,7 @@ app = Flask(__name__)
 def beinmatch():
     agent = UserAgent(verify_ssl=False)
 
-    beinmatch, result = update(agent)
-    print(result)
+    beinmatch = update(agent)
 
     return jsonify(beinmatch)
 
