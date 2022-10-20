@@ -6,6 +6,21 @@ import pandas as pd
 import concurrent.futures
 import pandas as pd
 from firebase import firebase
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+
+@app.route('/beinmatch', methods=['GET'])
+async def beinmatch():
+    agent = UserAgent(verify_ssl=False)
+
+    beinmatch, result = update(agent)
+    print('[INFO] Sleeping for 5 seconds 💤')
+    time.sleep(1)
+    print('[INFO] Waking up 🌝')
+
+    return jsonify({'beinmatch': beinmatch, 'result': result})
 
 
 def update(agent):
@@ -51,23 +66,4 @@ def update(agent):
     end_time = time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time))
     print('[UwU] Done in {}'.format(end_time))
 
-
-def clear_output():
-    import os
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-
-if __name__ == "__main__":
-
-    agent = UserAgent(verify_ssl=False)
-
-    update(agent)
-    print('[INFO] Sleeping for 5 seconds 💤')
-    time.sleep(1)
-    clear_output()
-    print('[INFO] Waking up 🌝')
-    print('[Serious INFO] Enough sleeping beast mode activated 😈')
-    time.sleep(2)
-    while True:
-        update(agent)
-        print('[INFO] Sleeping for 5 seconds 💤')
+    return beinmatch, result
