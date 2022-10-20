@@ -11,7 +11,7 @@ from flask import Flask, jsonify
 app = Flask(__name__)
 
 
-@app.route('/beinmatch', methods=['GET'])
+@app.route('/', methods=['GET'])
 async def beinmatch():
     agent = UserAgent(verify_ssl=False)
 
