@@ -5,7 +5,7 @@ from fake_useragent import UserAgent
 import pandas as pd
 import concurrent.futures
 import pandas as pd
-from firebase import firebase
+# from firebase import firebase
 from flask import Flask, jsonify
 
 app = Flask(__name__)
@@ -16,11 +16,9 @@ def beinmatch():
     agent = UserAgent(verify_ssl=False)
 
     beinmatch, result = update(agent)
-    print('[INFO] Sleeping for 5 seconds 💤')
-    time.sleep(1)
-    print('[INFO] Waking up 🌝')
+    print(result)
 
-    return jsonify({'beinmatch': beinmatch, 'result': result})
+    return jsonify(beinmatch)
 
 
 @app.route('/check', methods=['GET'])
@@ -54,9 +52,9 @@ def update(agent):
         dataframe.loc[len(dataframe)] = data
 
     print('[INFO] Starting Beinscrap 🔥')
-    print('[INFO] Connecting to firebase 🔌')
-    firebase_con = firebase.FirebaseApplication(
-        "https://beinscrap-default-rtdb.firebaseio.com/", None)
+    # print('[INFO] Connecting to firebase 🔌')
+    # firebase_con = firebase.FirebaseApplication(
+    #     "https://beinscrap-default-rtdb.firebaseio.com/", None)
     print('[INFO] Getting into website 💀')
     soup = BeautifulSoup(requests.get('https://beinmatchtv.tv/',
                                       headers={'User-Agent': agent.random}).content, 'lxml')
@@ -70,13 +68,13 @@ def update(agent):
         executor.map(get_data, items)
 
     print('[SUCESS] Data is gotten 🎉')
-    print("[INFO] Saving data to firebase 🔥")
+    # print("[INFO] Saving data to firebase 🔥")
 
     beinmatch = dataframe.T.to_dict()
 
-    result = firebase_con.put(
-        "https://beinscrap-default-rtdb.firebaseio.com/", '/beinmatch', data=beinmatch)
+    # result = firebase_con.put(
+    #     "https://beinscrap-default-rtdb.firebaseio.com/", '/beinmatch', data=beinmatch)
     end_time = time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time))
     print('[UwU] Done in {}'.format(end_time))
 
-    return beinmatch, result
+    return beinmatch#, result
