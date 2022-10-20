@@ -9,3 +9,4 @@ sseclient
 pycryptodome
 requests-toolbelt
 lxml
+flask

@@ -1,1 +1,1 @@
-worker: python Beinscrap.py
+web: python Beinscrap.py
