@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 
 @app.route('/', methods=['GET'])
-async def beinmatch():
+def beinmatch():
     agent = UserAgent(verify_ssl=False)
 
     beinmatch, result = update(agent)
@@ -22,6 +22,9 @@ async def beinmatch():
 
     return jsonify({'beinmatch': beinmatch, 'result': result})
 
+@app.route('/check', methods=['GET'])
+def check():
+    return jsonify({'status': 'ok'})
 
 def update(agent):
     dataframe = pd.DataFrame(columns=['team1', 'team2', 'score_team1', 'score_team2',
