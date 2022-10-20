@@ -22,9 +22,11 @@ def beinmatch():
 
     return jsonify({'beinmatch': beinmatch, 'result': result})
 
+
 @app.route('/check', methods=['GET'])
 def check():
     return jsonify({'status': 'ok'})
+
 
 def update(agent):
     dataframe = pd.DataFrame(columns=['team1', 'team2', 'score_team1', 'score_team2',
@@ -40,7 +42,15 @@ def update(agent):
         data.extend([s.div['style'].split('(')[1].split(')')[0].split(' ')[0]
                     for s in item.find_all('td', {'class': 'tdFlag'})])
         data.append(BeautifulSoup(requests.get("https://beinmatch.ma/home/live/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[0]+"/1/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[1].replace("'", ""), headers={'User-Agent': UserAgent().random}).content, 'lxml').find('iframe')[
-                    'src'] if BeautifulSoup(requests.get("https://beinmatch.ma/home/live/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[0]+"/1/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[1].replace("'", ""), headers={'User-Agent': UserAgent().random}).content, 'lxml').find('iframe') != None else "Unknown")
+                    'src'] if BeautifulSoup(requests.get(
+                        "https://beinmatch.ma/home/live/"
+                        + item.find('button', {'class': 'btn'})['onclick'].split(
+                            '(')[1].split(')')[0].split(',')[0]
+                        + "/1/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[1].replace("'", ""), headers={'User-Agent': UserAgent().random}
+                    ).content, 'lxml').find('iframe') != None else "https://beinmatch.ma/home/live/"
+                    + item.find('button', {'class': 'btn'})['onclick'].split(
+                        '(')[1].split(')')[0].split(',')[0]
+                    + "/1/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[1].replace("'", ""))
         dataframe.loc[len(dataframe)] = data
 
     print('[INFO] Starting Beinscrap 🔥')
