@@ -5,11 +5,18 @@ from fake_useragent import UserAgent
 import pandas as pd
 import concurrent.futures
 import pandas as pd
-# from firebase import firebase
 from flask import Flask, jsonify
 
 app = Flask(__name__)
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers',
+                         'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods',
+                         'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 @app.route('/', methods=['GET'])
 def beinmatch():
@@ -30,6 +37,8 @@ def update(agent):
                                       'match_type', 'state', 'image_team1', 'image_team2', 'match_link'])
 
     def get_data(item):
+        live_url = "https://beinmatch.ma/home/live/"
+
         data = [team.text.strip()
                 for team in item.find_all('td', {'class': 'tdTeam'})]
         data.extend([int(score.text.strip()) if score.text.strip(
@@ -38,22 +47,19 @@ def update(agent):
             'GMT', '') for s in item.find('td', {'class': 'compStl'}).find_all('td')] != [] else ["أمس"]+[s.text.strip() for s in item.find('td', {'class': 'compStl'})])
         data.extend([s.div['style'].split('(')[1].split(')')[0].split(' ')[0]
                     for s in item.find_all('td', {'class': 'tdFlag'})])
-        data.append(BeautifulSoup(requests.get("https://beinmatch.ma/home/live/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[0]+"/1/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[1].replace("'", ""), headers={'User-Agent': UserAgent().random}).content, 'lxml').find('iframe')[
+        data.append(BeautifulSoup(requests.get(live_url+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[0]+"/1/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[1].replace("'", ""), headers={'User-Agent': UserAgent().random}).content, 'lxml').find('iframe')[
                     'src'] if BeautifulSoup(requests.get(
-                        "https://beinmatch.ma/home/live/"
+                        live_url
                         + item.find('button', {'class': 'btn'})['onclick'].split(
                             '(')[1].split(')')[0].split(',')[0]
                         + "/1/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[1].replace("'", ""), headers={'User-Agent': UserAgent().random}
-                    ).content, 'lxml').find('iframe') != None else "https://beinmatch.ma/home/live/"
+                    ).content, 'lxml').find('iframe') != None else live_url
                     + item.find('button', {'class': 'btn'})['onclick'].split(
                         '(')[1].split(')')[0].split(',')[0]
                     + "/1/"+item.find('button', {'class': 'btn'})['onclick'].split('(')[1].split(')')[0].split(',')[1].replace("'", ""))
         dataframe.loc[len(dataframe)] = data
 
     print('[INFO] Starting Beinscrap 🔥')
-    # print('[INFO] Connecting to firebase 🔌')
-    # firebase_con = firebase.FirebaseApplication(
-    #     "https://beinscrap-default-rtdb.firebaseio.com/", None)
     print('[INFO] Getting into website 💀')
     soup = BeautifulSoup(requests.get('https://beinmatchtv.tv/',
                                       headers={'User-Agent': agent.random}).content, 'lxml')
@@ -67,13 +73,10 @@ def update(agent):
         executor.map(get_data, items)
 
     print('[SUCESS] Data is gotten 🎉')
-    # print("[INFO] Saving data to firebase 🔥")
 
     beinmatch = dataframe.T.to_dict()
 
-    # result = firebase_con.put(
-    #     "https://beinscrap-default-rtdb.firebaseio.com/", '/beinmatch', data=beinmatch)
     end_time = time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time))
     print('[UwU] Done in {}'.format(end_time))
 
-    return beinmatch#, result
+    return beinmatch
